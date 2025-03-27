@@ -1,12 +1,15 @@
 /**
  * Solves the given maze using DFS or BFS
  * @author Ms. Namasivayam
- * @version 03/10/2023
+ * @author Eisha Yadav
+ * @version 03/25/2025
  */
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class MazeSolver {
     private Maze maze;
@@ -46,49 +49,86 @@ public class MazeSolver {
      * @return An ArrayList of MazeCells in order from the start to end cell
      */
     public ArrayList<MazeCell> solveMazeDFS() {
-        // TODO: Use DFS to solve the maze
-        // Explore the cells in the order: NORTH, EAST, SOUTH, WEST
+        // Initialize Stack
         Stack<MazeCell> next = new Stack<>();
         MazeCell currentCell = maze.getStartCell();
-        checkNeighbor(currentCell, next);
-        return null;
-    }
+        next.push(currentCell);
 
-    // Recursive Helper Function
-    public void checkNeighbor(MazeCell currentCell, Stack<MazeCell> next){
-        currentCell.setExplored(true);
-        // Base Case
-        if (currentCell == maze.getEndCell()){
-            return;
+        // Continue to iterate while there are still elements in the stack
+        while (!next.empty()){
+            // Set the cell to explored
+            currentCell.setExplored(true);
+            // Return the solution once the end is reached
+            if (currentCell == maze.getEndCell()){
+                return getSolution();
+            }
+            // Go to down each route in the North,East,South,West directional order.
+            // North
+            addCell(currentCell, next, -1, 0);
+            // East
+            addCell(currentCell, next, 0, 1);
+            // South
+            addCell(currentCell, next, 1, 0);
+            // West
+            addCell(currentCell, next, 0, -1);
+
+            currentCell = next.pop();
         }
-        // Go to down each route in the North,East,South,West directional order.
-        // NORTH
-        addCell(currentCell, next, -1, 0);
-        // EAST
-        addCell(currentCell, next, 0, 1);
-        // SOUTH
-        addCell(currentCell, next, 1, 0);
-        // WEST
-        addCell(currentCell, next, 0, -1);
-        // Recursive Step (where current cell is the top element of the stack)
-        checkNeighbor(next.pop(), next);
+        return getSolution();
     }
 
     // Function to add cell to stack, and perform checks to see if visited.
     // Sets Explored Status + Parent Status of cells as well
     public void addCell(MazeCell currentCell, Stack<MazeCell> next, int rowAdd, int colAdd){
-        if(maze.isValidCell(currentCell.getRow() + rowAdd, currentCell.getCol()+ colAdd)){
+        if(maze.isValidCell(currentCell.getRow() + rowAdd, currentCell.getCol() + colAdd)){
             next.add(maze.getCell(currentCell.getRow() + rowAdd, currentCell.getCol() + colAdd));
+            // Prepare the following cell from the stack
+            next.peek().setParent(currentCell);
+            next.peek().setExplored(true);
         }
+
     }
     /**
      * Performs a Breadth-First Search to solve the Maze
      * @return An ArrayList of MazeCells in order from the start to end cell
      */
     public ArrayList<MazeCell> solveMazeBFS() {
-        // TODO: Use BFS to solve the maze
-        // Explore the cells in the order: NORTH, EAST, SOUTH, WEST
-        return null;
+        // Utilize a Queue, to allow for First In, First Out Traversal
+        Queue<MazeCell> next = new LinkedList<MazeCell>();
+        MazeCell currentCell = maze.getStartCell();
+        next.add(currentCell);
+
+        // While there are still elements in the queue
+        while (!next.isEmpty()){
+            currentCell.setExplored(true);
+            // If code has reached the end of maze, stop
+            if (currentCell.equals(maze.getEndCell())){
+                return getSolution();
+            }
+            // NORTH
+            addCell(currentCell, -1, 0, next);
+            // EAST
+            addCell(currentCell, 0, 1, next);
+            // SOUTH
+            addCell(currentCell, 1, 0, next);
+            // WEST
+            addCell(currentCell, 0, -1, next);
+
+            // Prepare the Next Current Cell
+            next.remove();
+            currentCell = next.peek();
+        }
+        return getSolution();
+    }
+
+    // Add the neighboring cells to the queue
+    public void addCell(MazeCell currentCell, int rowAdd, int colChange, Queue<MazeCell> next){
+        if (maze.isValidCell(currentCell.getRow() + rowAdd, currentCell.getCol() + colChange)){
+            MazeCell temp = maze.getCell(currentCell.getRow() + rowAdd, currentCell.getCol() +colChange);
+            next.add(temp);
+            temp.setParent(currentCell);
+            temp.setExplored(true);
+        }
     }
 
     public static void main(String[] args) {
@@ -108,6 +148,7 @@ public class MazeSolver {
 
         // Solve the maze using BFS and print the solution
         sol = ms.solveMazeBFS();
+        System.out.println("\n");
         maze.printSolution(sol);
     }
 }

@@ -1,7 +1,8 @@
 /**
  * A class to test our MazeSolver
- * @author: Nandhini Namasivayam
- * @version: 03/04/2022
+ * @author Ms. Namasivayam
+ * @author Eisha Yadav
+ * @version 03/25/2025
  */
 
 import java.util.ArrayList;
